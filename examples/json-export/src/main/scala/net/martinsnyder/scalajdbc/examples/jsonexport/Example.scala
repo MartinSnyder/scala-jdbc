@@ -26,9 +26,20 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import net.martinsnyder.scalajdbc.Jdbc
 import scala.util.{Failure, Success}
 
+/**
+ * Uses scala-jdbc and jackson to export a relational table to the console as JSON
+ */
 object Example {
+  /**
+   * Standard H2 connection string used for testing
+   * Refer to http://www.h2database.com/html/main.html for more info
+   */
   val connectionInfo = new Jdbc.ConnectionInfo("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1", "", "")
 
+  /**
+   * This is the same sample DB that is used in the project unit tests.  Because the examples are
+   *in a src/main though, they cannot access the initializeDatabase in src/test of the parent project
+   */
   def initializeDatabase() {
     Jdbc.withStatement(connectionInfo, (stmt: Statement) => {
       stmt.execute("CREATE TABLE EXAMPLE(ID INT PRIMARY KEY, DESCRIPTION VARCHAR)")
@@ -40,13 +51,23 @@ object Example {
     })
   }
 
+  /**
+   * This is the heart of the example.  Given connection information and a SQL statement
+   * this function returns a String containing JSON of all the records in the table
+   * @param conn JDBC Connection information
+   * @param sql SQL Statement to execute for JSON results conversion
+   * @return a single JSON string containing the exported results
+   */
   def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) = {
+    // Setup a Jackson mapper for our operation
     val mapper = new ObjectMapper()
     mapper.registerModule(DefaultScalaModule)
 
+    // Iterate over the results collecting JSON versions of the row data
     Jdbc.withResultsIterator(conn, sql, (it) => {
-      val jsonIt = it.drop(1).take(3).map(m => mapper.writeValueAsString(m))
+      val jsonIt = it.map(m => mapper.writeValueAsString(m))
 
+      // Join the individual results together with the JSON array bookends and delimiter
       jsonIt.mkString("[\n\t", ",\n\t", "\n]")
     })
   }
@@ -54,7 +75,8 @@ object Example {
   def main(args: Array[String]) {
     initializeDatabase()
 
-    queryToJSON(connectionInfo, "SELECT ID, DESCRIPTION FROM EXAMPLE ORDER BY DESCRIPTION DESC") match {
+    // Our main invokes our primary routine, then dispatches I/O
+    queryToJSON(connectionInfo, "SELECT * FROM EXAMPLE") match {
       case Success(json) => println(json)
       case Failure(e) => println(e.getMessage)
     }

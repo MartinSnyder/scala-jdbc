@@ -138,5 +138,32 @@ class Tests extends FunSpec with BeforeAndAfter {
 
       assert(results == List("Four", "One", "Three", "Two", "Zero"))
     }
+
+    it("projects exceptions properly") {
+      assert(Jdbc.withResultsIterator(connectionInfo, sql + "invalid", _ => Unit).isFailure)
+    }
+
+    it("invalidates the Iterator outside of the provided scope") {
+      var iterator: Iterator[Map[String,AnyRef]] = null
+      assert(Jdbc.withResultsIterator(connectionInfo, sql, it => {
+        iterator = it
+      }).isSuccess)
+
+      assert(iterator != null)
+
+      intercept[JdbcSQLException] {
+        iterator.next()
+      }
+    }
+
+    it("behaves as expected when someone calls next too many times") {
+      assert(Jdbc.withResultsIterator(connectionInfo, sql, it => {
+        it.foreach(row => Unit)
+
+        intercept[NoSuchElementException] {
+          it.next()
+        }
+      }).isSuccess)
+    }
   }
 }
