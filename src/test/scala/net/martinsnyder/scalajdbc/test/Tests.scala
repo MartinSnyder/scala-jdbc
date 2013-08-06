@@ -24,9 +24,10 @@ import org.scalatest.{BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 import net.martinsnyder.scalajdbc.Jdbc
-import java.sql.{ResultSet, Connection, Statement}
+import java.sql.Statement
 import org.h2.jdbc.JdbcSQLException
 import scala.collection.mutable.ListBuffer
+import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class Tests extends FunSpec with BeforeAndAfter {
@@ -58,15 +59,15 @@ class Tests extends FunSpec with BeforeAndAfter {
     }
 
     it("invalidates the Connection outside of the provided scope") {
-      var conn: Connection = null
-      assert(Jdbc.withConnection(connectionInfo, c => {
-        conn = c
-      }).isSuccess)
+      Jdbc.withConnection(connectionInfo, identity) match {
+        case Success(conn) => {
+          assert(conn != null)
 
-      assert(conn != null)
-
-      intercept[JdbcSQLException] {
-        conn.getMetaData
+          intercept[JdbcSQLException] {
+            conn.getMetaData
+          }
+        }
+        case Failure(_) => fail()
       }
     }
   }
@@ -85,15 +86,15 @@ class Tests extends FunSpec with BeforeAndAfter {
     }
 
     it("invalidates the Statement outside of the provided scope") {
-      var stmt: Statement = null
-      assert(Jdbc.withStatement(connectionInfo, s => {
-        stmt = s
-      }).isSuccess)
+      Jdbc.withStatement(connectionInfo, identity) match {
+        case Success(stmt) => {
+          assert(stmt != null)
 
-      assert(stmt != null)
-
-      intercept[JdbcSQLException] {
-        stmt.getQueryTimeout
+          intercept[JdbcSQLException] {
+            stmt.getQueryTimeout
+          }
+        }
+        case Failure(_) => fail()
       }
     }
   }
@@ -110,15 +111,15 @@ class Tests extends FunSpec with BeforeAndAfter {
     }
 
     it("invalidates the ResultSet outside of the provided scope") {
-      var resultSet: ResultSet = null
-      assert(Jdbc.withResultSet(connectionInfo, sql, rs => {
-        resultSet = rs
-      }).isSuccess)
+      Jdbc.withResultSet(connectionInfo, sql, identity) match {
+        case Success(resultSet) => {
+          assert(resultSet != null)
 
-      assert(resultSet != null)
-
-      intercept[JdbcSQLException] {
-        resultSet.next()
+          intercept[JdbcSQLException] {
+            resultSet.next()
+          }
+        }
+        case Failure(_) => fail()
       }
     }
   }
