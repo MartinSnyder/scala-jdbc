@@ -65,7 +65,7 @@ object Example {
 
     // Iterate over the results collecting JSON versions of the row data
     Jdbc.withResultsIterator(conn, sql, (it) => {
-      val jsonIt = it.map(m => mapper.writeValueAsString(m))
+      val jsonIt = it.map(row => mapper.writeValueAsString(row))
 
       // Join the individual results together with the JSON array bookends and delimiter
       jsonIt.mkString("[\n\t", ",\n\t", "\n]")
