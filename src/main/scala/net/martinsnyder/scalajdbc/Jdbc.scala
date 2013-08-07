@@ -36,7 +36,7 @@ object Jdbc {
    * @param username username for associated connection URL.  Can be null or ""
    * @param password password for associated connection URL.  Can be null or ""
    */
-  case class ConnectionInfo(url: String, username: String, password: String) {}
+  case class ConnectionInfo(url: String, username: String, password: String)
 
   /**
    * Invokes the supplied function parameter with a properly created and managed JDBC Connection
@@ -46,17 +46,10 @@ object Jdbc {
    * @return returns a Try Monad for the operation.  On success, will be Success[T], on failure will be Failure[Exception]
    */
   def withConnection [T] (connInfo: ConnectionInfo, f: (Connection) => T): Try[T] = {
-    // Create the JDBC connection
     val conn: Connection = DriverManager.getConnection(connInfo.url, connInfo.username, connInfo.password)
 
-    // Invoke our supplied function inside the Try monad
     val result: Try[T] = Try(f(conn))
-
-    // The Try monad will contain all possible exceptions for us safely, so closing the connection here is
-    // akin to a finally block
     conn.close()
-
-    // Return the result of our Try
     result
   }
 
@@ -69,9 +62,6 @@ object Jdbc {
    * @return returns a Try Monad for the operation.  On success, will be Success[T], on failure will be Failure[Exception]
    */
   def withStatement [T] (connInfo: ConnectionInfo, f: (Statement) => T): Try[T] = {
-    // Create a private function to pass to withConnection below that implements the logic of this method
-    // Note that privFun closes on f, so it is able to invoke our specified function even though privFun
-    // will actually be executed by withConnection below
     def privFun(conn: Connection): T = {
       val stmt: Statement = conn.createStatement()
 
@@ -99,9 +89,6 @@ object Jdbc {
    * @return returns a Try Monad for the operation.  On success, will be Success[T], on failure will be Failure[Exception]
    */
   def withResultSet [T] (connInfo: ConnectionInfo, sql: String, f: (ResultSet) => T): Try[T] = {
-    // Create a private function to pass to withStatement below that implements the logic of this method
-    // Note that privFun closes on f, so it is able to invoke our specified function even though privFun
-    // will actually be executed by withStatement below
     def privFun(stmt: Statement): T = {
       val resultSet: ResultSet = stmt.executeQuery(sql)
 
@@ -131,11 +118,6 @@ object Jdbc {
    * @param resultSet The JDBC ResultSet object to project as an iterator.
    */
   private class ResultsIterator (resultSet: ResultSet) extends Iterator[Map[String, AnyRef]] {
-    /**
-     * A member variable that is initialized when this object is constructed by examining
-     * the metadata associated with the result set and generating a Scala list of associated column
-     * names
-     */
     private val columnNames: List[String] = {
       val rsmd: ResultSetMetaData = resultSet.getMetaData
 
@@ -146,7 +128,6 @@ object Jdbc {
         columnNamesBuf.append(rsmd.getColumnName(i))
       }
 
-      // Convert the mutable ListBuffer to a immutable List as we return it out of the expression
       columnNamesBuf.toList
     }
 
@@ -158,17 +139,15 @@ object Jdbc {
     private def buildRowMap(resultSet: ResultSet): Map[String, AnyRef] = {
       val rowMap = new scala.collection.mutable.HashMap[String, AnyRef]
 
-      // Use our already-prepared list of column names to extract the values into the map in a single expression
       columnNames.foreach((columnName: String) => {
         rowMap.put(columnName, resultSet.getObject(columnName))
       })
 
-      // Convert our mutable HashMap to a immutable Map on return so as not to leak our mutable structure to our callers
       rowMap.toMap
     }
 
     /**
-     * Retreives the next row of data from a result set.  Note that this method returns an Option monad
+     * Retrieves the next row of data from a result set.  Note that this method returns an Option monad
      * If the end of the result set has been reached, it will return None, otherwise it will return Some[Map[String, AnyRef]]
      *
      * @param resultSet JDBC ResultSet to extract row data from
@@ -203,11 +182,7 @@ object Jdbc {
       // but no one should be calling next without first making sure that hasNext returns true, so in our usage model
       // we should never invoke get on "None"
       val rowData = nextRow.get
-
-      // Prime our nextRow member variable to contain the next row in line for processing
       nextRow = getNextRow(resultSet)
-
-      // Return the original rowData as the result of our expression
       rowData
     }
   }
