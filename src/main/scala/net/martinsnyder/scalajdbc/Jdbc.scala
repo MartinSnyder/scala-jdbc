@@ -196,5 +196,5 @@ object Jdbc {
    * @return returns a Try Monad for the operation.  On success, will be Success[T], on failure will be Failure[Exception]
    */
   def withResultsIterator [T] (connInfo: ConnectionInfo, sql: String, itFun: (ResultsIterator) => T): Try[T] =
-    withResultSet(connInfo, sql, (resultSet: ResultSet) => itFun(new ResultsIterator(resultSet)))
+    withResultSet(connInfo, sql, (resultSet) => itFun(new ResultsIterator(resultSet)))
 }

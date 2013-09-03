@@ -40,7 +40,7 @@
 				<section>
 					<h1>Functional Wrappers for legacy APIs</h1>
 					<p>
-						<small><a href="http://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a></small>
+						<small><a href="http://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://wingspan.com">Wingspan Technology, Inc.</a></small>
 					</p>
 				</section>
 
@@ -376,7 +376,7 @@ try {
                     </section>
 
                     <section>
-                        <h2>Extracting One Row</h2>
+                        <h2>Extract One Row</h2>
 <pre><code>private def buildRowMap(resultSet: ResultSet) = {
     val rowMap = new scala.collection.mutable.HashMap[String, AnyRef]
 
@@ -406,12 +406,13 @@ try {
 
                     <section>
                         <h2>Controlling Row Retrieval</h2>
-<pre><code>private def getNextRow(resultSet: ResultSet) = {
-    if (resultSet.next())
-        Some(buildRowMap(resultSet))
-    else
-        None
-}</code></pre>
+<pre><code>private def getNextRow(resultSet: ResultSet):
+    Option[Map[String, AnyRef]] = {
+        if (resultSet.next())
+            Some(buildRowMap(resultSet))
+        else
+            None
+    }</code></pre>
                         <aside class="notes">
                         </aside>
                     </section>
@@ -439,15 +440,69 @@ try {
                         </aside>
                     </section>
 
-
-
+                    <section>
+                        <h2>Provide our iterator to our callers</h2>
+<pre><code>def withResultsIterator [T] (connInfo: ConnectionInfo, sql: String,
+    itFun: (ResultsIterator) => T): Try[T] =
+        withResultSet(connInfo, sql,
+            (resultSet) => itFun(new ResultsIterator(resultSet)))</code></pre>
+                        <aside class="notes">
+                        </aside>
+                    </section>
 
                 </section>
 
+                <section>
+                    <h2>Revisiting the destination</h2>
+<pre><code>def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) = {
+    val mapper = new ObjectMapper()
+    mapper.registerModule(DefaultScalaModule)
 
+    Jdbc.withResultsIterator(conn, sql, (it) => {
+        val jsonIt = it.map(row => mapper.writeValueAsString(row))
 
+        jsonIt.mkString("[\n\t", ",\n\t", "\n]")
+    })
+}
 
+def main(args: Array[String]) {
+  queryToJSON(connectionInfo, "SELECT * FROM EXAMPLE") match {
+    case Success(json) => println(json)
+    case Failure(e) => println(e.getMessage)
+  }
+}</code></pre>
+                    <aside class="notes">
+                    </aside>
+                </section>
 
+                <section>
+                    <h2>Source Project</h2>
+                    <p><a href="https://github.com/MartinSnyder/scala-jdbc">https://github.com/MartinSnyder/scala-jdbc</a></p>
+                    <p>Requires git, jdk7 (does not require gradle)</p>
+<pre><code>git clone https://github.com/MartinSnyder/scala-jdbc.git
+gradlew test run</code></pre>
+                    <aside class="notes">
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Links</h2>
+                    <ul>
+                        <li>Blog: <a href="http://martinsnyder.net/?p=168">http://martinsnyder.net</a></li>
+                        <li>Reveal.js: <a href="https://github.com/hakimel/reveal.js">https://github.com/hakimel/reveal.js</a></li>
+                    </ul>
+                    <aside class="notes">
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Thank You!</h2>
+                    <p>
+                        <small><a href="http://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://wingspan.com">Wingspan Technology, Inc.</a></small>
+                    </p>
+                    <aside class="notes">
+                    </aside>
+                </section>
             </div>
 
 		</div>
