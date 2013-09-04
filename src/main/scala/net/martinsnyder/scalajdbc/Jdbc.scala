@@ -121,14 +121,9 @@ object Jdbc {
     private val columnNames: List[String] = {
       val rsmd: ResultSetMetaData = resultSet.getMetaData
 
-      // Note the use of a ListBuffer here.  This is a reasonable thing to do even in a functional
-      // language so long as you don't "leak" the mutable object outside of it's original scope.
-      val columnNamesBuf = new ListBuffer[String]
-      for (i <- 1 to rsmd.getColumnCount) {           // JDBC column indices are 1-based
-        columnNamesBuf.append(rsmd.getColumnName(i))
-      }
-
-      columnNamesBuf.toList
+      (
+        for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
+      ).toList
     }
 
     /**
@@ -137,13 +132,9 @@ object Jdbc {
      * @return Scala immutable map containing row data of the ResultSet
      */
     private def buildRowMap(resultSet: ResultSet): Map[String, AnyRef] = {
-      val rowMap = new scala.collection.mutable.HashMap[String, AnyRef]
-
-      columnNames.foreach((columnName: String) => {
-        rowMap.put(columnName, resultSet.getObject(columnName))
-      })
-
-      rowMap.toMap
+      (
+        for (c <- columnNames) yield c -> resultSet.getObject(c)
+      ).toMap
     }
 
     /**

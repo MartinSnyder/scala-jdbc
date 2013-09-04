@@ -52,6 +52,8 @@
                         <li>Give an immediate, concrete benefit</li>
                     </ul>
 					<aside class="notes">
+                        Some people prefer to sneak new technologies in under the covers then have an "aha" moment for people -- "You've been using this all along."
+                        I prefer to put them front and center and make people want to use them.
 					</aside>
 				</section>
 
@@ -65,9 +67,9 @@
                         <li>What to do, not how to do it</li>
                     </ul>
 					<aside class="notes">
-					What is a side effect?  Describe a side effect as a mutation of somethign unseen (global state or otherwise).
-					
-					Scala offers functional programming on the JVM, with excellent Java interop
+                        <li>A side effect is just a mutation of something unseen (global state or otherwise).</li>
+                        <li>This presentation is not exactly a "pitch" for FP, but rather a pitch for how to pitch FP.  It's very meta.</li>
+                        <li>This presentation will explore each of these points in detail, but still just breaks the surface of the topic</li>
 					</aside>
 				</section>
 
@@ -81,7 +83,8 @@
                         <li>Representative of more interesting problems</li>
                     </ul>
 					<aside class="notes">
-						Note this has been done before (often) and more comprehensively
+                        <li>Scala offers functional programming on the JVM, with excellent Java interop</li>
+						<li>Note this has been done before (often) and more comprehensively</li>
 					</aside>
 				</section>
 
@@ -106,6 +109,10 @@ def main(args: Array[String]) {
   }
 }</code></pre>
                         <aside class="notes">
+                            <li><b>it.map</b> transforms from a row iterator to a json iterator.  It actually creates a new, transforming iterator.</li>
+                            <li><b>jsonIt.mkString</b> condenses the iterator in memory and creates a string from all its elements.  This is the return value.
+                                This is also a point for potential improvement for our program</li>
+                            <li><b>main</b> is a fair representation of FP error handling</li>
 						</aside>
 					</section>
 
@@ -148,6 +155,8 @@ INSERT INTO EXAMPLE(ID, DESCRIPTION) VALUES(4, 'Four');</code></pre>
 }
 </code></pre>
 						<aside class="notes">
+                            <li><b>drop</b> and <b>take</b> are part of the collections API.  This is an extensive topic, and just serves as a sample
+                                of the benefits you gain once you represent your API as a collection</li>
 						</aside>
 					</section>
 				</section>
@@ -182,7 +191,7 @@ try {
 }
 </code></pre>
 					<aside class="notes">
-						The key point on this slide is state management as it relates to the 3 primary JDBC API objects and their open/closed status
+						Note the state management as it relates to the 3 primary JDBC API objects and their open/closed status
 					</aside>
 				</section>
 
@@ -195,6 +204,9 @@ try {
                             <li>Potential source of programmer errors</li>
                         </ul>
 						<aside class="notes">
+                            Most people probably agree that this is not a big problem, but they would also agree that mistakes
+                            in this area still happen from time to time.  This is a "simple" state problem though -- more significant
+                            state issues can be orders of magnitude more complex <b>AND</b> orders of magnitude more numerous
 						</aside>
 					</section>
 
@@ -205,7 +217,8 @@ try {
 	username: String,
 	password: String)</code></pre>
 						<aside class="notes">
-							We need this because we will need to represent "what we need to connect to a DB"
+							We need this because we will need to represent "what we need to connect to a DB".  Many people have
+                            likely done this in their own code without thinking about FP.
 						</aside>
 					</section>
 
@@ -216,6 +229,9 @@ try {
 		...
 	}</code></pre>
 						<aside class="notes">
+                            <b>withConnection</b> is the higher order function.
+                            This can be done in Java with interfaces, but the burden of doing so is significantly higher
+                            than in a language with higher order functions.  "Syntactic convinience" leads to adoption.
 						</aside>
 					</section>
 					
@@ -267,6 +283,8 @@ try {
         result
     }</code></pre>
                         <aside class="notes">
+                            This slide is more for people with existing Scala knowledge.  Monadic structures leads to an entirely different discussion
+                            within FP.  This is included just for completeness of the example.
                         </aside>
                     </section>
 				</section>
@@ -296,6 +314,7 @@ try {
         withConnection(connInfo, privFun)
     }</code></pre>
                         <aside class="notes">
+                            There is a new concept here, where we have a locally defined function that we pass on to withConnection.
                         </aside>
                     </section>
 
@@ -332,6 +351,8 @@ try {
                         <li>Write access to the “current” row</li>
                     </ul>
                     <aside class="notes">
+                        ResultSet is a good case study in "what not to do" regardless of your programming perspective.  Looking at this
+                        through our "FP Goggles" lets us articulate some of the issues with clarity.
                     </aside>
                 </section>
 
@@ -345,6 +366,9 @@ try {
                             <li>Stream</li>
                         </ul>
                         <aside class="notes">
+                            <li><b>List</b> - In memory</li>
+                            <li><b>Iterator</b> - once only traversal</li>
+                            <li><b>Stream</b> - multiple traversal, potential for algorithmically defined infinite streams</li>
                         </aside>
                     </section>
 
@@ -356,6 +380,10 @@ try {
     def next() = resultSet
 }</code></pre>
                         <aside class="notes">
+                            <li>Note the problem with <b>next</b>.  It returns whether or not the next row exists AND it manipulates
+                            the internal state of the ResultSet at the same time.  This is a side-effect.</li>
+                            <li>This implementation happens to work, but only because of implementation details of Scala not worth relying on</li>
+                            <li>Note that clients of our iterator could call next themselves and break us</li>
                         </aside>
                     </section>
 
@@ -364,29 +392,27 @@ try {
 <pre><code>private val columnNames: List[String] = {
     val rsmd: ResultSetMetaData = resultSet.getMetaData
 
-    val columnNamesBuf = new ListBuffer[String]
-    for (i <- 1 to rsmd.getColumnCount) {
-        columnNamesBuf.append(rsmd.getColumnName(i))
-    }
-
-    columnNamesBuf.toList
+    (
+        for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
+    ).toList
 }</code></pre>
                         <aside class="notes">
+                            <li><b>for</b> loop creates a sequence of "yielded" objects.</li>
+                            <li>getColumnName is 1-based</li>
                         </aside>
                     </section>
 
                     <section>
                         <h2>Extract One Row</h2>
-<pre><code>private def buildRowMap(resultSet: ResultSet) = {
-    val rowMap = new scala.collection.mutable.HashMap[String, AnyRef]
-
-    columnNames.foreach((columnName: String) => {
-        rowMap.put(columnName, resultSet.getObject(columnName))
-    })
-
-    rowMap.toMap
+<pre><code>private def buildRowMap(resultSet: ResultSet): Map[String, AnyRef] = {
+    (
+        for (c <- columnNames) yield c -> resultSet.getObject(c)
+    ).toMap
 }</code></pre>
                         <aside class="notes">
+                            <li><b>-></b> is a special Scala operator to create a tuple.  This is the same as returning the pair
+                            (c, resultSet.getObject(c))</li>
+                            <li>You can trivially turn a list of tuples like this into a map.  It assumes that each tuple is (key, value)</li>
                         </aside>
                     </section>
 
@@ -414,6 +440,7 @@ try {
             None
     }</code></pre>
                         <aside class="notes">
+                            Option provides a more clear way of representing "no value" or "an absence of a value" than null or other special tokens do (-1)
                         </aside>
                     </section>
 
@@ -437,6 +464,9 @@ try {
         }
     }</code></pre>
                         <aside class="notes">
+                            <li><b>nextRow</b> is mutable state in our iterator.</li>
+                            <li>This state was always here, we've just made it more explicit and taken ownership of it.</li>
+                            <li>It's hard to imagine iterators without internal state.  Also note that we didn't create this state -- it's from JDBC.  We're just isolating it.</li>
                         </aside>
                     </section>
 
@@ -447,6 +477,7 @@ try {
         withResultSet(connInfo, sql,
             (resultSet) => itFun(new ResultsIterator(resultSet)))</code></pre>
                         <aside class="notes">
+                            Here is a shorthand syntax without any curly braces.  We've defined a function in terms of another
                         </aside>
                     </section>
 
@@ -478,7 +509,7 @@ def main(args: Array[String]) {
                 <section>
                     <h2>Source Project</h2>
                     <p><a href="https://github.com/MartinSnyder/scala-jdbc">https://github.com/MartinSnyder/scala-jdbc</a></p>
-                    <p>Requires git, jdk7 (does not require gradle)</p>
+                    <p>Requires git, jdk7</p>
 <pre><code>git clone https://github.com/MartinSnyder/scala-jdbc.git
 gradlew test run</code></pre>
                     <aside class="notes">
@@ -504,7 +535,6 @@ gradlew test run</code></pre>
                     </aside>
                 </section>
             </div>
-
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
@@ -537,6 +567,5 @@ gradlew test run</code></pre>
 			});
 
 		</script>
-
 	</body>
 </html>
