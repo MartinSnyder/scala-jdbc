@@ -51,6 +51,10 @@ object Example {
     })
   }
 
+  // Setup a Jackson mapper for our operation
+  val mapper = new ObjectMapper()
+  mapper.registerModule(DefaultScalaModule)
+
   /**
    * This is the heart of the example.  Given connection information and a SQL statement
    * this function returns a String containing JSON of all the records in the table
@@ -58,19 +62,7 @@ object Example {
    * @param sql SQL Statement to execute for JSON results conversion
    * @return a single JSON string containing the exported results
    */
-  def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) = {
-    // Setup a Jackson mapper for our operation
-    val mapper = new ObjectMapper()
-    mapper.registerModule(DefaultScalaModule)
-
-    // Iterate over the results collecting JSON versions of the row data
-    Jdbc.withResultsIterator(conn, sql, (it) => {
-      val jsonIt = it.map(row => mapper.writeValueAsString(row))
-
-      // Join the individual results together with the JSON array bookends and delimiter
-      jsonIt.mkString("[\n\t", ",\n\t", "\n]")
-    })
-  }
+  def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) = Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
 
   def main(args: Array[String]) {
     initializeDatabase()
