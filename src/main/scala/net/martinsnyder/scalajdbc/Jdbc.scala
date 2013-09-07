@@ -22,7 +22,6 @@ package net.martinsnyder.scalajdbc
 
 import java.sql._
 import scala.util.Try
-import scala.collection.mutable.ListBuffer
 
 /**
  * Container object for Functional wrapper methods for JDBC.
