@@ -51,7 +51,7 @@ object Example {
     })
   }
 
-  // Setup a Jackson mapper for our operation
+  // A shared Jackson mapper for JSON conversion
   val mapper = new ObjectMapper()
   mapper.registerModule(DefaultScalaModule)
 
