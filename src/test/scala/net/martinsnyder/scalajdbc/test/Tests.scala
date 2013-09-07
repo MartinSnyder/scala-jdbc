@@ -145,15 +145,15 @@ class Tests extends FunSpec with BeforeAndAfter {
     }
 
     it("invalidates the Iterator outside of the provided scope") {
-      var iterator: Iterator[Map[String,AnyRef]] = null
-      assert(Jdbc.withResultsIterator(connectionInfo, sql, it => {
-        iterator = it
-      }).isSuccess)
+      Jdbc.withResultsIterator(connectionInfo, sql, identity) match {
+        case Success(iterator) => {
+          assert(iterator != null)
 
-      assert(iterator != null)
-
-      intercept[JdbcSQLException] {
-        iterator.next()
+          intercept[JdbcSQLException] {
+            iterator.next()
+          }
+        }
+        case Failure(_) => fail()
       }
     }
 
