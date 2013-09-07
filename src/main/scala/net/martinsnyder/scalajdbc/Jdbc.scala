@@ -117,12 +117,10 @@ object Jdbc {
    * @param resultSet The JDBC ResultSet object to project as an iterator.
    */
   private class ResultsIterator (resultSet: ResultSet) extends Iterator[Map[String, AnyRef]] {
-    private val columnNames: List[String] = {
+    private val columnNames: Seq[String] = {
       val rsmd: ResultSetMetaData = resultSet.getMetaData
 
-      (
-        for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
-      ).toList
+      for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
     }
 
     /**
@@ -131,9 +129,7 @@ object Jdbc {
      * @return Scala immutable map containing row data of the ResultSet
      */
     private def buildRowMap(resultSet: ResultSet): Map[String, AnyRef] = {
-      (
-        for (c <- columnNames) yield c -> resultSet.getObject(c)
-      ).toMap
+      ( for (c <- columnNames) yield c -> resultSet.getObject(c) ).toMap
     }
 
     /**
