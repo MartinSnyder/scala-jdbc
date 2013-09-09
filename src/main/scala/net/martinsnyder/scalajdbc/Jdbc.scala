@@ -44,7 +44,7 @@ object Jdbc {
    * @tparam T return type of f.  Can be any type, including Unit
    * @return returns a Try Monad for the operation.  On success, will be Success[T], on failure will be Failure[Exception]
    */
-  def withConnection [T] (connInfo: ConnectionInfo, f: (Connection) => T): Try[T] = {
+  def withConnection [T] (connInfo: ConnectionInfo, f: Connection => T): Try[T] = {
     val conn: Connection = DriverManager.getConnection(connInfo.url, connInfo.username, connInfo.password)
 
     val result: Try[T] = Try(f(conn))
@@ -60,7 +60,7 @@ object Jdbc {
    * @tparam T return type of f.  Can be any type, including Unit
    * @return returns a Try Monad for the operation.  On success, will be Success[T], on failure will be Failure[Exception]
    */
-  def withStatement [T] (connInfo: ConnectionInfo, f: (Statement) => T): Try[T] = {
+  def withStatement [T] (connInfo: ConnectionInfo, f: Statement => T): Try[T] = {
     def privFun(conn: Connection): T = {
       val stmt: Statement = conn.createStatement()
 
@@ -87,7 +87,7 @@ object Jdbc {
    * @tparam T return type of f.  Can be any type, including Unit
    * @return returns a Try Monad for the operation.  On success, will be Success[T], on failure will be Failure[Exception]
    */
-  def withResultSet [T] (connInfo: ConnectionInfo, sql: String, f: (ResultSet) => T): Try[T] = {
+  def withResultSet [T] (connInfo: ConnectionInfo, sql: String, f: ResultSet => T): Try[T] = {
     def privFun(stmt: Statement): T = {
       val resultSet: ResultSet = stmt.executeQuery(sql)
 
@@ -181,6 +181,6 @@ object Jdbc {
    * @tparam T return type of f.  Can be any type, including Unit
    * @return returns a Try Monad for the operation.  On success, will be Success[T], on failure will be Failure[Exception]
    */
-  def withResultsIterator [T] (connInfo: ConnectionInfo, sql: String, itFun: (ResultsIterator) => T): Try[T] =
+  def withResultsIterator [T] (connInfo: ConnectionInfo, sql: String, itFun: ResultsIterator => T): Try[T] =
     withResultSet(connInfo, sql, (resultSet) => itFun(new ResultsIterator(resultSet)))
 }
