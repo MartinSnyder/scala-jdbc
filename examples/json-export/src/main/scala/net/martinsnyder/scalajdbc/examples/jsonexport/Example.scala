@@ -34,7 +34,7 @@ object Example {
    * Standard H2 connection string used for testing
    * Refer to http://www.h2database.com/html/main.html for more info
    */
-  val connectionInfo = new Jdbc.ConnectionInfo("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1", "", "")
+  val connectionInfo = new Jdbc.ConnectionInfo("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1")
 
   /**
    * This is the same sample DB that is used in the project unit tests.  Because the examples are
@@ -52,8 +52,7 @@ object Example {
   }
 
   // A shared Jackson mapper for JSON conversion
-  val mapper = new ObjectMapper()
-  mapper.registerModule(DefaultScalaModule)
+  val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
   /**
    * This is the heart of the example.  Given connection information and a SQL statement
@@ -62,13 +61,23 @@ object Example {
    * @param sql SQL Statement to execute for JSON results conversion
    * @return a single JSON string containing the exported results
    */
-  def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) = Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
+  def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) =
+    Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
+
+  def queryToJSONPartial(conn: Jdbc.ConnectionInfo, sql: String, start: Int, rows: Int) =
+    Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it.drop(start).take(rows)))
 
   def main(args: Array[String]) {
     initializeDatabase()
 
     // Our main invokes our primary routine, then dispatches I/O
     queryToJSON(connectionInfo, "SELECT * FROM EXAMPLE") match {
+      case Success(json) => println(json)
+      case Failure(e) => println(e.getMessage)
+    }
+
+    // Our main invokes our primary routine, then dispatches I/O
+    queryToJSONPartial(connectionInfo, "SELECT * FROM EXAMPLE", 2, 2) match {
       case Success(json) => println(json)
       case Failure(e) => println(e.getMessage)
     }

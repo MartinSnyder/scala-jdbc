@@ -35,7 +35,7 @@ object Jdbc {
    * @param username username for associated connection URL.  Can be null or ""
    * @param password password for associated connection URL.  Can be null or ""
    */
-  case class ConnectionInfo(url: String, username: String, password: String)
+  case class ConnectionInfo(url: String, username: String = "", password: String = "")
 
   /**
    * Invokes the supplied function parameter with a properly created and managed JDBC Connection
@@ -182,5 +182,5 @@ object Jdbc {
    * @return returns a Try Monad for the operation.  On success, will be Success[T], on failure will be Failure[Exception]
    */
   def withResultsIterator [T] (connInfo: ConnectionInfo, sql: String, itFun: ResultsIterator => T): Try[T] =
-    withResultSet(connInfo, sql, (resultSet) => itFun(new ResultsIterator(resultSet)))
+    withResultSet(connInfo, sql, resultSet => itFun(new ResultsIterator(resultSet)))
 }
