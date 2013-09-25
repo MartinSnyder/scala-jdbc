@@ -115,7 +115,7 @@ INSERT INTO EXAMPLE(ID, DESCRIPTION) VALUES(4, 'Four');</code></pre>
             <h2>Target Source Code</h2>
 <pre><code class="scala">val connectionInfo = new Jdbc.ConnectionInfo("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1")
 
-val mapper = new ObjectMapper()registerModule(DefaultScalaModule)
+val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
 def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) =
   Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
