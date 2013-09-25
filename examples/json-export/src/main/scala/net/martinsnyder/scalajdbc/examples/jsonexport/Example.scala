@@ -61,11 +61,9 @@ object Example {
    * @param sql SQL Statement to execute for JSON results conversion
    * @return a single JSON string containing the exported results
    */
-  def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) =
-  Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
+  def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) = Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
 
-  def queryToJSONPartial(conn: Jdbc.ConnectionInfo, sql: String, start: Int, rows: Int) =
-    Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it.drop(start).take(rows)))
+  def queryToJSONPartial(conn: Jdbc.ConnectionInfo, sql: String, start: Int, rows: Int) = Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it.drop(start).take(rows)))
 
   def main(args: Array[String]) {
     initializeDatabase()
