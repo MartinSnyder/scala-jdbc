@@ -2,6 +2,7 @@ scala-jdbc
 ==========
 
 Scala functional wrapper for JDBC API. There are additional materials available that support this repository and detail its contents:
+* [(Live) Presentation Slides][slides]
 * [2013 Blog Post][blog-post]
 * [2013 Philly JUG/PHASE Presentation][presentation-video]:
 
@@ -13,5 +14,6 @@ Getting started tips:
 * gradlew test run  # Runs the unit tests and example program
 * gradlew scaladoc  # Generates project documentation
 
+[slides]: https://rawgit.com/MartinSnyder/scala-jdbc/master/presentation/index.html
 [blog-post]: https://martinsnyder.net/blog/2013/08/07/functional-wrappers-for-legacy-apis/
 [presentation-video]: https://vimeo.com/75591447
