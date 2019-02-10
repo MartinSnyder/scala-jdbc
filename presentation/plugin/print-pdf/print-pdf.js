@@ -2,38 +2,66 @@
  * phantomjs script for printing presentations to PDF.
  *
  * Example:
- * phantomjs print-pdf.js "http://lab.hakim.se/reveal-js?print-pdf" reveal-demo.pdf
+ * phantomjs print-pdf.js "http://revealjs.com?print-pdf" reveal-demo.pdf
  *
- * By Manuel Bieh (https://github.com/manuelbieh)
+ * @author Manuel Bieh (https://github.com/manuelbieh)
+ * @author Hakim El Hattab (https://github.com/hakimel)
+ * @author Manuel Riezebosch (https://github.com/riezebosch)
  */
 
 // html2pdf.js
-var page = new WebPage();
 var system = require( 'system' );
 
-page.paperSize = {
-	format: 'A4',
-	orientation: 'landscape',
-	margin: {
-		left: '0',
-		right: '0',
-		top: '0',
-		bottom: '0'
-	}
-};
-page.zoomFactor = 1.5;
+var probePage = new WebPage();
+var printPage = new WebPage();
 
-var revealFile = system.args[1] || 'index.html?print-pdf';
-var slideFile = system.args[2] || 'slides.pdf';
+var inputFile = system.args[1] || 'index.html?print-pdf';
+var outputFile = system.args[2] || 'slides.pdf';
 
-if( slideFile.match( /\.pdf$/gi ) === null ) {
-	slideFile += '.pdf';
+if( outputFile.match( /\.pdf$/gi ) === null ) {
+	outputFile += '.pdf';
 }
 
-console.log( 'Printing PDF...' );
+console.log( 'Export PDF: Reading reveal.js config [1/4]' );
 
-page.open( revealFile, function( status ) {
-	console.log( 'Printed succesfully' );
-	page.render( slideFile );
-	phantom.exit();
+probePage.open( inputFile, function( status ) {
+
+	console.log( 'Export PDF: Preparing print layout [2/4]' );
+
+	var config = probePage.evaluate( function() {
+		return Reveal.getConfig();
+	} );
+
+	if( config ) {
+
+		printPage.paperSize = {
+			width: Math.floor( config.width * ( 1 + config.margin ) ),
+			height: Math.floor( config.height * ( 1 + config.margin ) ),
+			border: 0
+		};
+
+		printPage.open( inputFile, function( status ) {
+			console.log( 'Export PDF: Preparing pdf [3/4]')
+			printPage.evaluate( function() {
+				Reveal.isReady() ? window.callPhantom() : Reveal.addEventListener( 'pdf-ready', window.callPhantom );
+			} );
+		} );
+
+		printPage.onCallback = function( data ) {
+			// For some reason we need to "jump the queue" for syntax highlighting to work.
+			// See: http://stackoverflow.com/a/3580132/129269
+			setTimeout( function() {
+				console.log( 'Export PDF: Writing file [4/4]' );
+				printPage.render( outputFile );
+				console.log( 'Export PDF: Finished successfully!' );
+				phantom.exit();
+			}, 0 );
+		};
+	}
+	else {
+
+		console.log( 'Export PDF: Unable to read reveal.js config. Make sure the input address points to a reveal.js page.' );
+		phantom.exit( 1 );
+
+	}
 } );

@@ -1,553 +1,531 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Functional Wrappers for legacy APIs</title>
+		<title>reveal.js</title>
 
-    <meta name="description" content="A design approach for leveraging functional programming in non-functional organizations and projects">
-    <meta name="author" content="Martin Snyder">
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
 
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-    <link rel="stylesheet" href="css/reveal.min.css">
-    <link rel="stylesheet" href="css/theme/default.css" id="theme">
-
-    <!-- For syntax highlighting -->
-    <link rel="stylesheet" href="lib/css/zenburn.css">
-
-    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
-    <script>
-      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
-    </script>
-
-    <!--[if lt IE 9]>
-    <script src="lib/js/html5shiv.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="reveal">
-
-  <!-- Any section element inside of this container is displayed as a slide -->
-  <div class="slides">
-    <section>
-      <h1>Functional Wrappers for legacy APIs</h1>
-      <p>
-        <small><a href="http://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://wingspan.com">Wingspan Technology, Inc.</a></small>
-      </p>
-      <aside class="notes">
-          This talk is best suited for:
-          <ul>
-              <li>People that are familiar with FP and would like to use it in the workplace but ... don't</li>
-              <li>People that know what FP is but need to see a grounded example in order to better understand it</li>
-              <li>People are looking for an introduction to FP that they can use for personal exploration</li>
-          </ul>
-      </aside>
-    </section>
-
-    <section>
-      <h2>Goals for technology introduction</h2>
-        <ul>
-            <li>Lower adoption cost</li>
-            <li>Showcase the strengths of the technology</li>
-            <li>Give an immediate, concrete benefit</li>
-        </ul>
-      <aside class="notes">
-        Some people prefer to sneak new technologies in under the covers then have an "aha" moment for people -- "You've been using this all along."
-        I prefer to put them front and center and make people want to use them.
-      </aside>
-    </section>
-
-    <section>
-      <h2>Talking points for Functional Programming</h2>
-        <ul>
-            <li>Immutable data, elimination of side effects</li>
-            <li>Higher order functions</li>
-            <li>Robust collection APIs</li>
-            <li>What to do, not how to do it</li>
-            <li>Lower risk profile</li>
-        </ul>
-      <aside class="notes">
-        <li>This presentation is not exactly a "pitch" for FP, but rather a pitch for how to pitch FP.  It's very meta.</li>
-        <li>This presentation will explore each of these points in detail, but still just breaks the surface of the topic</li>
-      </aside>
-    </section>
-
-    <section>
-      <h2>Scala wrapper for JDBC</h2>
-        <p>This example was selected for the following reasons:</p>
-        <ul>
-            <li>JDBC is a highly accessible technology</li>
-            <li>Scala is a JVM language with great Java interopability</li>
-            <li>The combination lends itself to self-contained examples</li>
-            <li>NOTE: the value is in the process, not the product.  This is representative of more interesting problems</li>
-        </ul>
-      <aside class="notes">
-        <li>Note this has been done before (often) and more comprehensively</li>
-      </aside>
-    </section>
-
-    <section>
-        <section>
-            <h2>Example Scenario</h2>
-            <p>Convert relational data ...</p>
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+				  <h1>Functional Wrappers for legacy APIs</h1>
+				  <p>
+					<small><a href="https://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://wingspan.com">Wingspan Technology, Inc.</a></small>
+				  </p>
+				  <aside class="notes">
+					  This talk is best suited for:
+					  <ul>
+						  <li>People that are familiar with FP and would like to use it in the workplace but ... don't</li>
+						  <li>People that know what FP is but need to see a grounded example in order to better understand it</li>
+						  <li>People are looking for an introduction to FP that they can use for personal exploration</li>
+					  </ul>
+				  </aside>
+				</section>
+			
+				<section>
+				  <h2>Goals for technology introduction</h2>
+					<ul>
+						<li>Lower adoption cost</li>
+						<li>Showcase the strengths of the technology</li>
+						<li>Give an immediate, concrete benefit</li>
+					</ul>
+				  <aside class="notes">
+					Some people prefer to sneak new technologies in under the covers then have an "aha" moment for people -- "You've been using this all along."
+					I prefer to put them front and center and make people want to use them.
+				  </aside>
+				</section>
+			
+				<section>
+				  <h2>Talking points for Functional Programming</h2>
+					<ul>
+						<li>Immutable data, elimination of side effects</li>
+						<li>Higher order functions</li>
+						<li>Robust collection APIs</li>
+						<li>What to do, not how to do it</li>
+						<li>Lower risk profile</li>
+					</ul>
+				  <aside class="notes">
+					<li>This presentation is not exactly a "pitch" for FP, but rather a pitch for how to pitch FP.  It's very meta.</li>
+					<li>This presentation will explore each of these points in detail, but still just breaks the surface of the topic</li>
+				  </aside>
+				</section>
+			
+				<section>
+				  <h2>Scala wrapper for JDBC</h2>
+					<p>This example was selected for the following reasons:</p>
+					<ul>
+						<li>JDBC is a highly accessible technology</li>
+						<li>Scala is a JVM language with great Java interopability</li>
+						<li>The combination lends itself to self-contained examples</li>
+						<li>NOTE: the value is in the process, not the product.  This is representative of more interesting problems</li>
+					</ul>
+				  <aside class="notes">
+					<li>Note this has been done before (often) and more comprehensively</li>
+				  </aside>
+				</section>
+			
+				<section>
+					<section>
+						<h2>Example Scenario</h2>
+						<p>Convert relational data ...</p>
 <pre><code class="sql">CREATE TABLE EXAMPLE(ID INT PRIMARY KEY, DESCRIPTION VARCHAR);
 INSERT INTO EXAMPLE(ID, DESCRIPTION) VALUES(0, 'Zero');
 INSERT INTO EXAMPLE(ID, DESCRIPTION) VALUES(1, 'One');
 INSERT INTO EXAMPLE(ID, DESCRIPTION) VALUES(2, 'Two');
 INSERT INTO EXAMPLE(ID, DESCRIPTION) VALUES(3, 'Three');
 INSERT INTO EXAMPLE(ID, DESCRIPTION) VALUES(4, 'Four');</code></pre>
-            <p>... to JSON</p>
+						<p>... to JSON</p>
 <pre><code class="json">[
-    {"DESCRIPTION":"Zero","ID":0},
-    {"DESCRIPTION":"One","ID":1},
-    {"DESCRIPTION":"Two","ID":2},
-    {"DESCRIPTION":"Three","ID":3},
-    {"DESCRIPTION":"Four","ID":4}
+	{"DESCRIPTION":"Zero","ID":0},
+	{"DESCRIPTION":"One","ID":1},
+	{"DESCRIPTION":"Two","ID":2},
+	{"DESCRIPTION":"Three","ID":3},
+	{"DESCRIPTION":"Four","ID":4}
 ]</code></pre>
-            <aside class="notes">
-            </aside>
-        </section>
-        <section>
-            <h2>Target Source Code</h2>
+						<aside class="notes">
+						</aside>
+					</section>
+					<section>
+						<h2>Target Source Code</h2>
 <pre><code class="scala">val connectionInfo = new Jdbc.ConnectionInfo("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1")
 
 val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
 def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) =
-  Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
+	Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
 
 def main(args: Array[String]) {
-  queryToJSON(connectionInfo, "SELECT * FROM EXAMPLE") match {
-    case Success(json) => println(json)
-    case Failure(e) => println(e.getMessage)
-  }
+	queryToJSON(connectionInfo, "SELECT * FROM EXAMPLE") match {
+	case Success(json) => println(json)
+	case Failure(e) => println(e.getMessage)
+	}
 }</code></pre>
-            <aside class="notes">
-                <li>Object mapper is from the Jackson library</li>
-                <li>Note that an iterator is as good as any other collection.</li>
-                <li><b>main</b> is a fair representation of FP error handling</li>
-            </aside>
-          </section>
-
-          <section>
-            <h2>Target with Partial result sets</h2>
+						<aside class="notes">
+							<li>Object mapper is from the Jackson library</li>
+							<li>Note that an iterator is as good as any other collection.</li>
+							<li><b>main</b> is a fair representation of FP error handling</li>
+						</aside>
+					  </section>
+			
+					  <section>
+						<h2>Target with Partial result sets</h2>
 <pre><code class="scala">def queryToJSONPartial(conn: Jdbc.ConnectionInfo, sql: String, start: Int, rows: Int) =
-  Jdbc.withResultsIterator(
-    conn,
-    sql,
-    it => mapper.writeValueAsString(it.drop(start).take(rows))
-  )
+	Jdbc.withResultsIterator(
+	conn,
+	sql,
+	it => mapper.writeValueAsString(it.drop(start).take(rows))
+	)
 
 queryToJSONPartial(connectionInfo, "SELECT * FROM EXAMPLE", 2, 2)
 </code></pre>
-<p>Produces</p>
+			<p>Produces</p>
 <pre><code class="json">[
-    {"DESCRIPTION":"Two","ID":2},
-    {"DESCRIPTION":"Three","ID":3},
+	{"DESCRIPTION":"Two","ID":2},
+	{"DESCRIPTION":"Three","ID":3},
 ]</code></pre>
-            <aside class="notes">
-                <b>drop</b> and <b>take</b> are part of the collections API.  This is an extensive topic, and just serves as a sample
-                of the benefits you gain once you represent your API as a collection
-            </aside>
-          </section>
-        </section>
-
-        <section>
-          <h2>The Approach</h2>
-            <ul>
-                <li>Hide state from our callers</li>
-                <li>Surface within the collections API</li>
-            </ul>
-          <aside class="notes">
-          </aside>
-        </section>
-
-        <section>
-          <h2>The alternative</h2>
+						<aside class="notes">
+							<b>drop</b> and <b>take</b> are part of the collections API.  This is an extensive topic, and just serves as a sample
+							of the benefits you gain once you represent your API as a collection
+						</aside>
+					  </section>
+					</section>
+			
+					<section>
+					  <h2>The Approach</h2>
+						<ul>
+							<li>Hide state from our callers</li>
+							<li>Surface within the collections API</li>
+						</ul>
+					  <aside class="notes">
+					  </aside>
+					</section>
+			
+					<section>
+					  <h2>The alternative</h2>
 <pre><code class="scala">Connection conn =  DriverManager.getConnection("url", "user", "pass");
 try {
-  Statement stmt = conn.createStatement();
-  try {
-    ResultSet rs = stmt.executeQuery("SELECT * FROM EX");
-    try {
-      while (rs.next()) { ... }
-    } finally {
-      rs.close();
-    }
-  } finally {
-    stmt.close();
-  }
+	Statement stmt = conn.createStatement();
+	try {
+	ResultSet rs = stmt.executeQuery("SELECT * FROM EX");
+	try {
+		while (rs.next()) { ... }
+	} finally {
+		rs.close();
+	}
+	} finally {
+	stmt.close();
+	}
 } finally {
-  conn.close();
+	conn.close();
 }
 </code></pre>
-          <aside class="notes">
-            Note the state management as it relates to the 3 primary JDBC API objects and their open/closed status
-          </aside>
-        </section>
-
-        <section>
-          <section>
-            <h2>Step 1 - Hiding Connection State</h2>
-                        <ul>
-                            <li>Connection, Statement, and ResultSet all have an internal state that must be managed</li>
-                            <li>Requires developer knowledge for correct use</li>
-                            <li>Potential source of programmer errors</li>
-                        </ul>
-            <aside class="notes">
-                            Most people probably agree that this is not a big problem, but they would also agree that mistakes
-                            in this area still happen from time to time.  This is a "simple" state problem though -- more significant
-                            state issues can be orders of magnitude more complex <b>AND</b> orders of magnitude more numerous
-            </aside>
-          </section>
-
-          <section>
-            <h2>Create Data Payload</h2>
+					  <aside class="notes">
+						Note the state management as it relates to the 3 primary JDBC API objects and their open/closed status
+					  </aside>
+					</section>
+			
+					<section>
+					  <section>
+						<h2>Step 1 - Hiding Connection State</h2>
+									<ul>
+										<li>Connection, Statement, and ResultSet all have an internal state that must be managed</li>
+										<li>Requires developer knowledge for correct use</li>
+										<li>Potential source of programmer errors</li>
+									</ul>
+						<aside class="notes">
+										Most people probably agree that this is not a big problem, but they would also agree that mistakes
+										in this area still happen from time to time.  This is a "simple" state problem though -- more significant
+										state issues can be orders of magnitude more complex <b>AND</b> orders of magnitude more numerous
+						</aside>
+					  </section>
+			
+					  <section>
+						<h2>Create Data Payload</h2>
 <pre><code class="scala">case class ConnectionInfo(url: String, username: String = "", password: String = "")</code></pre>
-            <aside class="notes">
-                <ul>
-                    <li>We need this because we will need to represent "what we need to connect to a DB".</li>
-                    <li>Many people have likely done this in their own code without thinking about FP.</li>
-                    <li>Not the use of default parameter values</li>
-                </ul>
-            </aside>
-          </section>
-
-          <section>
-            <h2>Introduce Higher Order Function</h2>
+						<aside class="notes">
+							<ul>
+								<li>We need this because we will need to represent "what we need to connect to a DB".</li>
+								<li>Many people have likely done this in their own code without thinking about FP.</li>
+								<li>Not the use of default parameter values</li>
+							</ul>
+						</aside>
+					  </section>
+			
+					  <section>
+						<h2>Introduce Higher Order Function</h2>
 <pre><code class="scala">def withConnection (connInfo: ConnectionInfo, f: Connection => Unit) {
-    ...
+	...
 }</code></pre>
-            <aside class="notes">
-                <b>withConnection</b> is the higher order function.
-                This can be done in Java with interfaces, but the burden of doing so is significantly higher
-                than in a language with higher order functions.  "Syntactic convinience" leads to adoption.
-            </aside>
-          </section>
-
-          <section>
-            <h2>Control State Management</h2>
+						<aside class="notes">
+							<b>withConnection</b> is the higher order function.
+							This can be done in Java with interfaces, but the burden of doing so is significantly higher
+							than in a language with higher order functions.  "Syntactic convinience" leads to adoption.
+						</aside>
+					  </section>
+			
+					  <section>
+						<h2>Control State Management</h2>
 <pre><code class="scala">def withConnection (connInfo: ConnectionInfo, f: Connection => Unit) {
-    val conn = DriverManager.getConnection(connInfo.url,
-                                           connInfo.username,
-                                           connInfo.password)
-    try {
-      f(conn)
-    }
-    finally {
-      conn.close()
-    }
+	val conn = DriverManager.getConnection(connInfo.url,
+											connInfo.username,
+											connInfo.password)
+	try {
+		f(conn)
+	}
+	finally {
+		conn.close()
+	}
 }</code></pre>
-            <aside class="notes">
-            </aside>
-          </section>
-
-          <section>
-            <h2>Use Generic Return Types</h2>
+						<aside class="notes">
+						</aside>
+					  </section>
+			
+					  <section>
+						<h2>Use Generic Return Types</h2>
 <pre><code class="scala">def withConnection [T] (connInfo: ConnectionInfo, f: Connection => T): T = {
-    val conn = DriverManager.getConnection(connInfo.url,
-                                           connInfo.username,
-                                           connInfo.password)
-    try {
-      f(conn)
-    }
-    finally {
-      conn.close()
-    }
+	val conn = DriverManager.getConnection(connInfo.url,
+											connInfo.username,
+											connInfo.password)
+	try {
+		f(conn)
+	}
+	finally {
+		conn.close()
+	}
 }</code></pre>
-            <aside class="notes">
-            </aside>
-          </section>
-
-                    <section>
-                        <h2>Apply the Try Monad</h2>
+						<aside class="notes">
+						</aside>
+					  </section>
+			
+								<section>
+									<h2>Apply the Try Monad</h2>
 <pre><code class="scala">def withConnection [T] (connInfo: ConnectionInfo, f: Connection => T): Try[T] = {
-    val conn = DriverManager.getConnection(connInfo.url,
-                                           connInfo.username,
-                                           connInfo.password)
-    val result = Try(f(conn))
-    conn.close()
-    result
+	val conn = DriverManager.getConnection(connInfo.url,
+											connInfo.username,
+											connInfo.password)
+	val result = Try(f(conn))
+	conn.close()
+	result
 }</code></pre>
-                        <aside class="notes">
-                            This slide is more for people with existing Scala knowledge.  Monadic structures leads to an entirely different discussion
-                            within FP.  This is included just for completeness of the example.
-                        </aside>
-                    </section>
-        </section>
-
-                <section>
-                    <section>
-                        <h2>Step 1a - Hide more state</h2>
-                        <p>Now we finish the job for Statement and ResultSet</p>
-                        <aside class="notes">
-                        </aside>
-                    </section>
-
-                    <section>
-                        <h2>Statement Management</h2>
+									<aside class="notes">
+										This slide is more for people with existing Scala knowledge.  Monadic structures leads to an entirely different discussion
+										within FP.  This is included just for completeness of the example.
+									</aside>
+								</section>
+					</section>
+			
+							<section>
+								<section>
+									<h2>Step 1a - Hide more state</h2>
+									<p>Now we finish the job for Statement and ResultSet</p>
+									<aside class="notes">
+									</aside>
+								</section>
+			
+								<section>
+									<h2>Statement Management</h2>
 <pre><code class="scala">def withStatement [T] (connInfo: ConnectionInfo, f: Statement => T): Try[T] = {
-    def privFun(conn: Connection) = {
-        val stmt = conn.createStatement()
-        try {
-            f(stmt)
-        }
-        finally {
-            stmt.close()
-        }
-    }
+	def privFun(conn: Connection) = {
+		val stmt = conn.createStatement()
+		try {
+			f(stmt)
+		}
+		finally {
+			stmt.close()
+		}
+	}
 
-    withConnection(connInfo, privFun)
+	withConnection(connInfo, privFun)
 }</code></pre>
-                        <aside class="notes">
-                            There is a new concept here, where we have a locally defined function that we pass on to withConnection.
-                        </aside>
-                    </section>
-
-                    <section>
-                        <h2>ResultSet Management</h2>
+									<aside class="notes">
+										There is a new concept here, where we have a locally defined function that we pass on to withConnection.
+									</aside>
+								</section>
+			
+								<section>
+									<h2>ResultSet Management</h2>
 <pre><code class="scala">def withResultSet [T] (connInfo: ConnectionInfo, sql: String, f: ResultSet => T):Try[T]={
-    def privFun(stmt: Statement) = {
-        val resultSet = stmt.executeQuery(sql)
-        try {
-            f(resultSet)
-        }
-        finally {
-            resultSet.close()
-        }
-    }
+	def privFun(stmt: Statement) = {
+		val resultSet = stmt.executeQuery(sql)
+		try {
+			f(resultSet)
+		}
+		finally {
+			resultSet.close()
+		}
+	}
 
-    withStatement(connInfo, privFun)
+	withStatement(connInfo, privFun)
 }</code></pre>
-                        <aside class="notes">
-                        </aside>
-                    </section>
-
-                </section>
-
-                <section>
-                    <h2>Progress check</h2>
-                    <p>Our risk profile is about the same as before because of the complexity of the ResultSet interface which combines:
-                    <ul>
-                        <li>State regarding the result set</li>
-                        <li>Iteration</li>
-                        <li>Data structure of the results</li>
-                        <li>Read access to the “current” row</li>
-                        <li>Write access to the “current” row</li>
-                    </ul>
-                    <aside class="notes">
-                        ResultSet is a good case study in "what not to do" regardless of your programming perspective.  Looking at this
-                        through our "FP Goggles" lets us articulate some of the issues with clarity.
-                    </aside>
-                </section>
-
-                <section>
-                    <section>
-                        <h2>Step 2 - Plug into the collections API</h2>
-                        <p>There are three appropriate "iterable" collection objects in Scala:
-                        <ul>
-                            <li>List</li>
-                            <li>Iterator</li>
-                            <li>Stream</li>
-                        </ul>
-                        <aside class="notes">
-                            <li><b>List</b> - In memory</li>
-                            <li><b>Iterator</b> - once only traversal</li>
-                            <li><b>Stream</b> - multiple traversal, potential for algorithmically defined infinite streams</li>
-                        </aside>
-                    </section>
-
-                    <section>
-                        <h2>A Naive Iterator</h2>
+									<aside class="notes">
+									</aside>
+								</section>
+			
+							</section>
+			
+							<section>
+								<h2>Progress check</h2>
+								<p>Our risk profile is about the same as before because of the complexity of the ResultSet interface which combines:
+								<ul>
+									<li>State regarding the result set</li>
+									<li>Iteration</li>
+									<li>Data structure of the results</li>
+									<li>Read access to the “current” row</li>
+									<li>Write access to the “current” row</li>
+								</ul>
+								<aside class="notes">
+									ResultSet is a good case study in "what not to do" regardless of your programming perspective.  Looking at this
+									through our "FP Goggles" lets us articulate some of the issues with clarity.
+								</aside>
+							</section>
+			
+							<section>
+								<section>
+									<h2>Step 2 - Plug into the collections API</h2>
+									<p>There are three appropriate "iterable" collection objects in Scala:
+									<ul>
+										<li>List</li>
+										<li>Iterator</li>
+										<li>Stream</li>
+									</ul>
+									<aside class="notes">
+										<li><b>List</b> - In memory</li>
+										<li><b>Iterator</b> - once only traversal</li>
+										<li><b>Stream</b> - multiple traversal, potential for algorithmically defined infinite streams</li>
+									</aside>
+								</section>
+			
+								<section>
+									<h2>A Naive Iterator</h2>
 <pre><code class="scala">class ResultsIterator(resultSet: ResultSet) extends Iterator[ResultSet] {
-    def hasNext = resultSet.next()
-    def next() = resultSet
+	def hasNext = resultSet.next()
+	def next() = resultSet
 }</code></pre>
-                        <aside class="notes">
-                            <li>Note the problem with <b>next</b>.  It returns whether or not the next row exists AND it manipulates
-                            the internal state of the ResultSet at the same time.  This is a side-effect.</li>
-                            <li>This implementation happens to work, but only because of implementation details of Scala not worth relying on</li>
-                            <li>Note that clients of our iterator could call next themselves and break us</li>
-                        </aside>
-                    </section>
-
-                    <section>
-                        <h2>Extract our column names</h2>
+									<aside class="notes">
+										<li>Note the problem with <b>next</b>.  It returns whether or not the next row exists AND it manipulates
+										the internal state of the ResultSet at the same time.  This is a side-effect.</li>
+										<li>This implementation happens to work, but only because of implementation details of Scala not worth relying on</li>
+										<li>Note that clients of our iterator could call next themselves and break us</li>
+									</aside>
+								</section>
+			
+								<section>
+									<h2>Extract our column names</h2>
 <pre><code class="scala">private val columnNames: Seq[String] = {
-  val rsmd: ResultSetMetaData = resultSet.getMetaData
+	val rsmd: ResultSetMetaData = resultSet.getMetaData
 
-  for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
+	for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
 }</code></pre>
-                        <aside class="notes">
-                            <li><b>for</b> loop creates a sequence of "yielded" objects.</li>
-                            <li>getColumnName is 1-based</li>
-                        </aside>
-                    </section>
-
-                    <section>
-                        <h2>Extract One Row</h2>
+									<aside class="notes">
+										<li><b>for</b> loop creates a sequence of "yielded" objects.</li>
+										<li>getColumnName is 1-based</li>
+									</aside>
+								</section>
+			
+								<section>
+									<h2>Extract One Row</h2>
 <pre><code class="scala">private def buildRowMap(resultSet: ResultSet): Map[String, AnyRef] = {
-  (
-    for (c <- columnNames) yield c -> resultSet.getObject(c)
-  ).toMap
+	(
+	for (c <- columnNames) yield c -> resultSet.getObject(c)
+	).toMap
 }</code></pre>
-                        <aside class="notes">
-                            <li><b>-></b> is a special Scala operator to create a tuple.  This is the same as returning the pair
-                            (c, resultSet.getObject(c))</li>
-                            <li>You can trivially turn a list of tuples like this into a map.  It assumes that each tuple is (key, value)</li>
-                        </aside>
-                    </section>
-
-                    <section>
-                        <h2>An Improved Iterator</h2>
+									<aside class="notes">
+										<li><b>-></b> is a special Scala operator to create a tuple.  This is the same as returning the pair
+										(c, resultSet.getObject(c))</li>
+										<li>You can trivially turn a list of tuples like this into a map.  It assumes that each tuple is (key, value)</li>
+									</aside>
+								</section>
+			
+								<section>
+									<h2>An Improved Iterator</h2>
 <pre><code class="scala">class ResultsIterator (resultSet: ResultSet) extends Iterator[Map[String, AnyRef]] {
-    val columnNames = { … }
-    private def buildRowMap(resultSet: ResultSet) = { ... }
+	val columnNames = { … }
+	private def buildRowMap(resultSet: ResultSet) = { ... }
 
-    def hasNext = resultSet.next()
-    def next() = buildRowMap(resultSet)
+	def hasNext = resultSet.next()
+	def next() = buildRowMap(resultSet)
 }</code></pre>
-                        <aside class="notes">
-                        </aside>
-                    </section>
-
-                    <section>
-                        <h2>Controlling Row Retrieval</h2>
+									<aside class="notes">
+									</aside>
+								</section>
+			
+								<section>
+									<h2>Controlling Row Retrieval</h2>
 <pre><code class="scala">private def getNextRow(resultSet: ResultSet): Option[Map[String, AnyRef]] = {
-    if (resultSet.next())
-        Some(buildRowMap(resultSet))
-    else
-        None
+	if (resultSet.next())
+		Some(buildRowMap(resultSet))
+	else
+		None
 }</code></pre>
-                        <aside class="notes">
-                            Option provides a more clear way of representing "no value" or "an absence of a value" than null or other special tokens do (-1)
-                        </aside>
-                    </section>
-
-                    <section>
-                        <h2>The Final Iterator</h2>
+									<aside class="notes">
+										Option provides a more clear way of representing "no value" or "an absence of a value" than null or other special tokens do (-1)
+									</aside>
+								</section>
+			
+								<section>
+									<h2>The Final Iterator</h2>
 <pre><code class="scala">class ResultsIterator (resultSet: ResultSet) extends Iterator[Map[String, AnyRef]]
 {
-    val columnNames = { … }
-    private def buildRowMap(resultSet: ResultSet) = { … }
-    private def getNextRow(resultSet: ResultSet) = { … }
+	val columnNames = { … }
+	private def buildRowMap(resultSet: ResultSet) = { … }
+	private def getNextRow(resultSet: ResultSet) = { … }
 
-    var nextRow = getNextRow(resultSet)
+	var nextRow = getNextRow(resultSet)
 
-    def hasNext = nextRow.isDefined
+	def hasNext = nextRow.isDefined
 
-    def next() = {
-        val rowData = nextRow.get
-        nextRow = getNextRow(resultSet)
-        rowData
-    }
+	def next() = {
+		val rowData = nextRow.get
+		nextRow = getNextRow(resultSet)
+		rowData
+	}
 }</code></pre>
-                        <aside class="notes">
-                            <li><b>nextRow</b> is mutable state in our iterator.</li>
-                            <li>This state was always here, we've just made it more explicit and taken ownership of it.</li>
-                            <li>It's hard to imagine iterators without internal state.  Also note that we didn't create this state -- it's from JDBC.  We're just isolating it.</li>
-                        </aside>
-                    </section>
-
-                    <section>
-                        <h2>Provide our iterator to our callers</h2>
+									<aside class="notes">
+										<li><b>nextRow</b> is mutable state in our iterator.</li>
+										<li>This state was always here, we've just made it more explicit and taken ownership of it.</li>
+										<li>It's hard to imagine iterators without internal state.  Also note that we didn't create this state -- it's from JDBC.  We're just isolating it.</li>
+									</aside>
+								</section>
+			
+								<section>
+									<h2>Provide our iterator to our callers</h2>
 <pre><code class="scala">def withResultsIterator [T] (connInfo: ConnectionInfo,
-                             sql: String,
-                             itFun: ResultsIterator => T): Try[T] =
-    withResultSet(connInfo, sql, resultSet => itFun(new ResultsIterator(resultSet)))</code></pre>
-                        <aside class="notes">
-                            Here is a shorthand syntax without any curly braces.  We've defined a function in terms of another
-                        </aside>
-                    </section>
-
-                </section>
-
-                <section>
-                    <h2>Revisiting the destination</h2>
+				sql: String,
+				itFun: ResultsIterator => T): Try[T] =
+	withResultSet(connInfo, sql, resultSet => itFun(new ResultsIterator(resultSet)))</code></pre>
+									<aside class="notes">
+										Here is a shorthand syntax without any curly braces.  We've defined a function in terms of another
+									</aside>
+								</section>
+			
+							</section>
+			
+							<section>
+								<h2>Revisiting the destination</h2>
 <pre><code class="scala">val connectionInfo = new Jdbc.ConnectionInfo("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1")
 
 val mapper = new ObjectMapper()registerModule(DefaultScalaModule)
 
 def queryToJSON(conn: Jdbc.ConnectionInfo, sql: String) =
-    Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
+	Jdbc.withResultsIterator(conn, sql, it => mapper.writeValueAsString(it))
 
 def main(args: Array[String]) {
-    queryToJSON(connectionInfo, "SELECT * FROM EXAMPLE") match {
-        case Success(json) => println(json)
-        case Failure(e) => println(e.getMessage)
-    }
+	queryToJSON(connectionInfo, "SELECT * FROM EXAMPLE") match {
+		case Success(json) => println(json)
+		case Failure(e) => println(e.getMessage)
+	}
 }</code></pre>
-                    <aside class="notes">
-                    </aside>
-                </section>
-
-                <section>
-                    <h2>Source Project</h2>
-                    <p><a href="https://github.com/MartinSnyder/scala-jdbc">https://github.com/MartinSnyder/scala-jdbc</a></p>
-                    <p>Requires git, jdk7</p>
+								<aside class="notes">
+								</aside>
+							</section>
+			
+							<section>
+								<h2>Source Project</h2>
+								<p><a href="https://github.com/MartinSnyder/scala-jdbc">https://github.com/MartinSnyder/scala-jdbc</a></p>
+								<p>Requires git, jdk8</p>
 <pre><code class="scala">git clone https://github.com/MartinSnyder/scala-jdbc.git
 gradlew test run</code></pre>
-                    <aside class="notes">
-                    </aside>
-                </section>
+								<aside class="notes">
+								</aside>
+							</section>
+			
+							<section>
+								<h2>Links</h2>
+								<ul>
+									<li>Blog: <a href="https://martinsnyder.net/?p=168">https://martinsnyder.net</a></li>
+									<li>Scala: <a href="http://scala-lang.org">http://scala-lang.org</a></li>
+									<li>Gradle: <a href="http://www.gradle.org/">http://www.gradle.org/</a></li>
+									<li>Scala Test: <a href="http://www.scalatest.org/">http://www.scalatest.org/</a></li>
+									<li>H2: <a href="http://www.h2database.com/">http://www.h2database.com/</a></li>
+									<li>Reveal.js: <a href="https://github.com/hakimel/reveal.js">https://github.com/hakimel/reveal.js</a></li>
+								</ul>
+								<aside class="notes">
+								</aside>
+							</section>
+			
+							<section>
+								<h2>Thank You!</h2>
+								<p>
+									<small><a href="https://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://wingspan.com">Wingspan Technology, Inc.</a></small>
+								</p>
+								<aside class="notes">
+								</aside>
+							</section>
+					</div>
+		</div>
 
-                <section>
-                    <h2>Links</h2>
-                    <ul>
-                        <li>Blog: <a href="http://martinsnyder.net/?p=168">http://martinsnyder.net</a></li>
-                        <li>Scala: <a href="http://scala-lang.org">http://scala-lang.org</a></li>
-                        <li>Gradle: <a href="http://www.gradle.org/">http://www.gradle.org/</a></li>
-                        <li>Scala Test: <a href="http://www.scalatest.org/">http://www.scalatest.org/</a></li>
-                        <li>H2: <a href="http://www.h2database.com/">http://www.h2database.com/</a></li>
-                        <li>Reveal.js: <a href="https://github.com/hakimel/reveal.js">https://github.com/hakimel/reveal.js</a></li>
-                    </ul>
-                    <aside class="notes">
-                    </aside>
-                </section>
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
 
-                <section>
-                    <h2>Thank You!</h2>
-                    <p>
-                        <small><a href="http://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://wingspan.com">Wingspan Technology, Inc.</a></small>
-                    </p>
-                    <aside class="notes">
-                    </aside>
-                </section>
-            </div>
-    </div>
-
-    <script src="lib/js/head.min.js"></script>
-    <script src="js/reveal.min.js"></script>
-
-    <script>
-      // Full list of configuration options available here:
-      // https://github.com/hakimel/reveal.js#configuration
-      Reveal.initialize({
-        controls: true,
-        progress: true,
-        history: true,
-        center: true,
-        width: 1200,
-
-        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
-        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
-
-        // Optional libraries used to extend on reveal.js
-        dependencies: [
-          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
-          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
-          // { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
-          // { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
-        ]
-      });
-    </script>
-  </body>
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
 </html>
