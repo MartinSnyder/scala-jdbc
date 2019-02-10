@@ -2,7 +2,7 @@ scala-jdbc
 ==========
 
 Scala functional wrapper for JDBC API. There are additional materials available that support this repository and detail its contents:
-* [(Live) Presentation Slides][slides]
+* [Presentation Slides][slides]
 * [2013 Blog Post][blog-post]
 * [2013 Philly JUG/PHASE Presentation][presentation-video]:
 
