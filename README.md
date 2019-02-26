@@ -14,6 +14,6 @@ Getting started tips:
 * gradlew test run  # Runs the unit tests and example program
 * gradlew scaladoc  # Generates project documentation
 
-[slides]: https://martinsnyder.net/asset/revealjs/scala-jdbc.html
+[slides]: https://martinsnyder.net/presentations/revealjs/scala-jdbc.html
 [blog-post]: https://martinsnyder.net/blog/2013/08/07/functional-wrappers-for-legacy-apis/
 [presentation-video]: https://vimeo.com/75591447
